@@ -3,6 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from .models import Question, Choice
 from django.template import loader
 from django.urls import reverse
+from django.views import generic
 # HttpResponse - server provides the client with the resource it has requested
 
 def vote(request, question_id):
@@ -48,3 +49,21 @@ def detail(request, question_id):
     ## to prevent tight coupling, we use the below code 
     question = get_object_or_404(Question, pk=question_id)
     return render(request, 'polls/detail.html', {'question': question})
+
+class IndexView(generic.ListView):
+    template_name = 'polls/index.html'
+    context_object_name = 'latest_question_list'
+
+    def get_queryset(self):
+        """Return the last five published questions."""
+        return Question.objects.order_by('-pub_date')[:5]
+
+
+class DetailView(generic.DetailView):
+    model = Question
+    template_name = 'polls/detail.html'
+
+
+class ResultsView(generic.DetailView):
+    model = Question
+    template_name = 'polls/results.html'
